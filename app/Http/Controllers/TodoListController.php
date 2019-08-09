@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\TodoList;
 use Illuminate\Http\Request;
+use App\Repositories\Contracts\TodoListRepositoryInterface;
 
 class TodoListController extends Controller
 {
@@ -33,9 +34,14 @@ class TodoListController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, TodoListRepositoryInterface $listRepository)
     {
-        //
+        $listAttributes = $request->only(['title']);
+        $listAttributes['owner_id'] = auth()->id();
+        $items = $request->get('items');
+        $list = $listRepository->createWithItems($listAttributes, $items);
+
+        return $list;
     }
 
     /**
@@ -46,7 +52,7 @@ class TodoListController extends Controller
      */
     public function show(TodoList $todoList)
     {
-        //
+        return $todoList;
     }
 
     /**
@@ -67,9 +73,12 @@ class TodoListController extends Controller
      * @param  \App\TodoList  $todoList
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, TodoList $todoList)
+    public function update(Request $request, TodoList $todoList,
+                            TodoListRepositoryInterface $listRepository)
     {
-        //
+        $listRepository->update($todoList, $request->all());
+
+        return $todoList;
     }
 
     /**
@@ -78,8 +87,9 @@ class TodoListController extends Controller
      * @param  \App\TodoList  $todoList
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TodoList $todoList)
+    public function destroy(TodoList $todoList, TodoListRepositoryInterface $listRepository)
     {
-        //
+        $listRepository->destroy($todoList);
+        return $todoList;
     }
 }

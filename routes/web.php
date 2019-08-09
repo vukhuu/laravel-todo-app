@@ -18,4 +18,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::resource('lists', 'TodoListController')->middleware('auth');
+Route::resource('todoLists', 'TodoListController')->only([
+    'index', 'show', 'store', 'update', 'destroy'
+])->middleware('auth');

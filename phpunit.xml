@@ -30,7 +30,6 @@
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>
 
-        <env name="DB_HOST" value="db"/>
         <env name="DB_DATABASE" value="todo_testing"/>
         <env name="DB_USERNAME" value="root"/>
         <env name="DB_PASSWORD" value="admin"/>

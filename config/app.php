@@ -175,6 +175,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        App\Repositories\RepositoryServiceProvider::class,
+        App\Helpers\ActivityLogger\ActivityLoggerServiceProvider::class,
     ],
 
     /*
