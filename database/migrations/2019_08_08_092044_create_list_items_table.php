@@ -17,7 +17,9 @@ class CreateListItemsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('todo_list_id');
             $table->string('name', 100)->nullable(false);
+            
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('todo_list_id')->references('id')->on('todo_lists')->onDelete('cascade');
         });
@@ -30,6 +32,6 @@ class CreateListItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('list_items');
+        Schema::dropIfExists('todo_list_items');
     }
 }

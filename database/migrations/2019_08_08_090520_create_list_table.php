@@ -17,8 +17,9 @@ class CreateListTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('owner_id');
             $table->string('title', 100)->nullable(false);
-            $table->boolean('is_deleted')->default(0);
+            
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -31,6 +32,8 @@ class CreateListTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('lists');
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        Schema::dropIfExists('todo_lists');
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 }
