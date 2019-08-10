@@ -30,7 +30,7 @@ class TodoListsTest extends TestCase
             'items' => [<todoListItemAttributes]
         ] */
         $data = $listAttributes;
-        $data['items'] = [$itemAttributes];
+        $data['todo_list_items'] = [$itemAttributes];
         
         return $this->json('POST', route('todoLists.store'), $data);
     }
@@ -74,7 +74,6 @@ class TodoListsTest extends TestCase
 
     public function testUserDeleteTodoList()
     {
-        $this->withoutExceptionHandling();
         $this->signIn();
         
         // Create a todo list first
@@ -90,5 +89,28 @@ class TodoListsTest extends TestCase
         $response->assertStatus(200);
         $deleteModel = TodoList::withTrashed()->find($listId);
         $this->assertTrue(!empty($deleteModel->deleted_at));
+    }
+
+    public function testGetTodoLists()
+    {
+        $this->withoutExceptionHandling();
+        $this->signIn();
+        
+        // Create a todo list first
+        $listAttributes = factory(TodoList::class)->raw();
+        $itemAttributes = factory(TodoListItem::class)->raw();
+        $response = $this->_createTodoList($listAttributes, $itemAttributes);
+        $content = json_decode($response->getContent(), true);
+
+        $listId = $content['id'];
+        $url = route('todoLists.index');
+        $response = $this->json('GET', $url);
+        $response->assertStatus(200);
+        
+        $lists = json_decode($response->getContent(), true);
+        $this->assertTrue(count($lists) > 0);
+
+        $this->assertTrue($lists[0]['id'] == $listId);
+
     }
 }

@@ -15,7 +15,7 @@ class TodoListController extends Controller
      */
     public function index()
     {
-        //
+        return TodoList::with(['todoListItems'])->orderBy('id', 'desc')->get();
     }
 
     /**
@@ -38,7 +38,7 @@ class TodoListController extends Controller
     {
         $listAttributes = $request->only(['title']);
         $listAttributes['owner_id'] = auth()->id();
-        $items = $request->get('items');
+        $items = $request->get('todo_list_items');
         $list = $listRepository->createWithItems($listAttributes, $items);
 
         return $list;
