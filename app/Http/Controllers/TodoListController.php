@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\TodoList;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\TodoListRepositoryInterface;
+use Illuminate\Http\Response;
 
 class TodoListController extends Controller
 {
@@ -41,7 +42,10 @@ class TodoListController extends Controller
         $items = $request->get('todo_list_items');
         $list = $listRepository->createWithItems($listAttributes, $items);
 
-        return $list;
+        $response = new Response();
+        $response->setContent($list->with('todoListItems')->first());
+        $response->setStatusCode(201);
+        return $response;
     }
 
     /**
@@ -85,6 +89,8 @@ class TodoListController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\TodoList  $todoList
+     * @param  TodoListRepositoryInterface $listRepository
+     * 
      * @return \Illuminate\Http\Response
      */
     public function destroy(TodoList $todoList, TodoListRepositoryInterface $listRepository)

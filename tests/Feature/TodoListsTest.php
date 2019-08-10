@@ -18,23 +18,6 @@ class TodoListsTest extends TestCase
         $this->post(route('todoLists.store'))->assertRedirect('login');
     }
 
-    /**
-     * Create a todo list
-     * 
-     * @return array \Illuminate\Http\JsonResponse
-     */
-    private function _createTodoList($listAttributes, $itemAttributes)
-    {
-        /* Construct JSON data as format [
-            <todoListModelAttributes>
-            'items' => [<todoListItemAttributes]
-        ] */
-        $data = $listAttributes;
-        $data['todo_list_items'] = [$itemAttributes];
-        
-        return $this->json('POST', route('todoLists.store'), $data);
-    }
-
     public function testUserCreateTodoList()
     {
         $this->withoutExceptionHandling();
@@ -43,7 +26,7 @@ class TodoListsTest extends TestCase
         $listAttributes = factory(TodoList::class)->raw();
         $itemAttributes = factory(TodoListItem::class)->raw();
 
-        $response = $this->_createTodoList($listAttributes, $itemAttributes);
+        $response = $this->createTodoList($listAttributes, $itemAttributes);
         $response->assertStatus(201);
 
         $this->assertDatabaseHas('todo_lists', $listAttributes);
@@ -57,7 +40,7 @@ class TodoListsTest extends TestCase
         // Create a todo list first
         $listAttributes = factory(TodoList::class)->raw();
         $itemAttributes = factory(TodoListItem::class)->raw();
-        $response = $this->_createTodoList($listAttributes, $itemAttributes);
+        $response = $this->createTodoList($listAttributes, $itemAttributes);
         $content = json_decode($response->getContent(), true);
         $listId = $content['id'];
 
@@ -79,7 +62,7 @@ class TodoListsTest extends TestCase
         // Create a todo list first
         $listAttributes = factory(TodoList::class)->raw();
         $itemAttributes = factory(TodoListItem::class)->raw();
-        $response = $this->_createTodoList($listAttributes, $itemAttributes);
+        $response = $this->createTodoList($listAttributes, $itemAttributes);
         $content = json_decode($response->getContent(), true);
         $listId = $content['id'];
 
@@ -93,13 +76,12 @@ class TodoListsTest extends TestCase
 
     public function testGetTodoLists()
     {
-        $this->withoutExceptionHandling();
         $this->signIn();
         
         // Create a todo list first
         $listAttributes = factory(TodoList::class)->raw();
         $itemAttributes = factory(TodoListItem::class)->raw();
-        $response = $this->_createTodoList($listAttributes, $itemAttributes);
+        $response = $this->createTodoList($listAttributes, $itemAttributes);
         $content = json_decode($response->getContent(), true);
 
         $listId = $content['id'];

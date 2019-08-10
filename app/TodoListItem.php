@@ -11,6 +11,7 @@ class TodoListItem extends Model
 
     protected $fillable = [
         'name',
+        'todo_list_id',
     ];
 
     /**

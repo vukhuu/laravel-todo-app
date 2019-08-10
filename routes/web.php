@@ -18,6 +18,15 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+// Routes for TodoList model's actions
 Route::resource('todoLists', 'TodoListController')->only([
     'index', 'show', 'store', 'update', 'destroy'
+])->middleware('auth');
+
+// Routes for TodoListItem model's actions
+Route::post('todoListItems/{todoListItem}/markDone', 'TodoListItemController@markDone')
+    ->name('todoListItems.markDone');
+Route::resource('todoListItems', 'TodoListItemController')->only([
+    'store', 'update', 'destroy'
 ])->middleware('auth');

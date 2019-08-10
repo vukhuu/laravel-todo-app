@@ -17,6 +17,7 @@ class CreateListItemsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('todo_list_id');
             $table->string('name', 100)->nullable(false);
+            $table->boolean('is_done')->nullable(true)->default(0);
             
             $table->timestamps();
             $table->softDeletes();
