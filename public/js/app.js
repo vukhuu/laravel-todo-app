@@ -49424,14 +49424,13 @@ Vue.component('new-todo-box', {
   }
 });
 Vue.component('todo-list', {
-  template: "\n    <div class=\"card clearfix\">\n        <div class=\"card-header\">\n            <div class=\"row\" v-bind:class=\"{ 'is-editing': isEditing }\">\n                <div class=\"col-md-9\">\n                    <input type=\"text\" v-model=\"dataList.title\" class=\"inline-edit-text\" title=\"Click to edit\" @focus=\"isEditing = true\">\n                </div>\n                <div class=\"col-md-3\">\n                    <button type=\"button\" class=\"button remove\" @click=\"deleteList\" title=\"Delete\"><i class=\"fa fa-remove\" aria-hidden=\"true\"></i></button>\n                    <button type=\"button\" class=\"button primary save\" @click=\"updateTitle(dataList)\" title=\"Save\"><i class=\"fa fa-check-square\" aria-hidden=\"true\"></i></button>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-body\">\n            <div v-for=\"item in dataList.todo_list_items\">\n                <todo-list-item v-bind:item=\"item\"></todo-list-item>\n            </div>\n            <hr>\n            <div class=\"row\" v-bind:class=\"{ 'is-editing': isAddingNewTask }\">\n                <div class=\"col-md-9\">\n                    <input type=\"text\" class=\"inline-edit-text\" placeholder=\"New task\" v-model=\"newItemValue\" title=\"Click to add new task\" @focus=\"isAddingNewTask = true\">\n                </div>\n                <div class=\"col-md-3\">\n                    <button type=\"button\" class=\"button primary inline-button-save save\" @click=\"createNewItem\" title=\"Save\"><i class=\"fa fa-check-square\" aria-hidden=\"true\"></i></button>\n                </div>\n            </div>\n        </div>\n    </div>\n    ",
+  template: "\n    <div class=\"card clearfix\">\n        <div class=\"card-header\">\n            <div class=\"row\" v-bind:class=\"{ 'is-editing': isEditing }\">\n                <div class=\"col-md-9\">\n                    <input type=\"text\" v-model=\"list.title\" class=\"inline-edit-text\" title=\"Click to edit\" @focus=\"isEditing = true\">\n                </div>\n                <div class=\"col-md-3\">\n                    <button type=\"button\" class=\"button remove\" @click=\"deleteList\" title=\"Delete\"><i class=\"fa fa-remove\" aria-hidden=\"true\"></i></button>\n                    <button type=\"button\" class=\"button primary save\" @click=\"updateTitle(list)\" title=\"Save\"><i class=\"fa fa-check-square\" aria-hidden=\"true\"></i></button>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-body\">\n            <div v-for=\"item in list.todo_list_items\">\n                <todo-list-item v-bind:item=\"item\"></todo-list-item>\n            </div>\n            <hr>\n            <div class=\"row\" v-bind:class=\"{ 'is-editing': isAddingNewTask }\">\n                <div class=\"col-md-9\">\n                    <input type=\"text\" class=\"inline-edit-text\" placeholder=\"New task\" v-model=\"newItemValue\" title=\"Click to add new task\" @focus=\"isAddingNewTask = true\">\n                </div>\n                <div class=\"col-md-3\">\n                    <button type=\"button\" class=\"button primary inline-button-save save\" @click=\"createNewItem\" title=\"Save\"><i class=\"fa fa-check-square\" aria-hidden=\"true\"></i></button>\n                </div>\n            </div>\n        </div>\n    </div>\n    ",
   props: {
     list: Object
   },
   data: function data() {
     return {
       newItemValue: '',
-      dataList: this.list,
       isEditing: false,
       isAddingNewTask: false,
       isDeleted: false
@@ -49468,12 +49467,9 @@ Vue.component('todo-list', {
         name: this.newItemValue,
         todo_list_id: this.list.id
       }).then(function (response) {
-        var todoListItem = new TodoListItem();
-        todoListItem.id = response.data.id;
-        todoListItem.name = response.data.name;
-        todoListItem.isDone = response.data.is_done;
+        var todoListItem = new TodoListItem(response.data.id, response.data.name, response.data.is_done);
 
-        _this3.dataList.todo_list_items.push(todoListItem);
+        _this3.list.todo_list_items.push(todoListItem);
 
         _this3.resetAddNewForm();
       });
@@ -49482,8 +49478,8 @@ Vue.component('todo-list', {
       var _this4 = this;
 
       if (confirm('Are you sure you want to delete this list?')) {
-        axios["delete"]('/todoLists/' + this.dataList.id).then(function (response) {
-          _this4.dataList.isDeleted = true;
+        axios["delete"]('/todoLists/' + this.list.id).then(function (response) {
+          _this4.list.isDeleted = true;
           Event.fire('listDeleted');
         });
       }
@@ -49491,14 +49487,13 @@ Vue.component('todo-list', {
   }
 });
 Vue.component('todo-list-item', {
-  template: "\n        <div class=\"row\">\n            <div class=\"col-md-1\">\n                <input type=\"checkbox\" @click=\"markDone\" v-model=\"dataItem.isDone\" true-value=\"true\" false-value=\"false\">\n            </div>\n            <div class=\"col-md-9 inline-edit-text list-item\">\n                <input type=\"text\" v-bind:class=\"{ 'is-done': dataItem.isDone }\" v-model=\"dataItem.name\" title=\"Click to edit\" @focus=\"isEditing = true\">\n            </div>\n            <div class=\"col-md-2\" v-bind:class=\"{ 'is-editing': isEditing }\">\n                <button type=\"button\" class=\"button primary inline-button-save save\" @click=\"updateName\" title=\"Save\"><i class=\"fa fa-check-square\" aria-hidden=\"true\"></i></button>\n            </div>\n        </div>\n    ",
+  template: "\n        <div class=\"row\">\n            <div class=\"col-md-1\">\n                <input type=\"checkbox\" @click=\"markDone\" v-model=\"item.isDone\" true-value=\"true\" false-value=\"false\">\n            </div>\n            <div class=\"col-md-9 inline-edit-text list-item\">\n                <input type=\"text\" v-bind:class=\"{ 'is-done': item.isDone }\" v-model=\"item.name\" title=\"Click to edit\" @focus=\"isEditing = true\">\n            </div>\n            <div class=\"col-md-2\" v-bind:class=\"{ 'is-editing': isEditing }\">\n                <button type=\"button\" class=\"button primary inline-button-save save\" @click=\"updateName\" title=\"Save\"><i class=\"fa fa-check-square\" aria-hidden=\"true\"></i></button>\n            </div>\n        </div>\n    ",
   props: {
     item: Object
   },
   data: function data() {
     return {
       newItem: '',
-      dataItem: this.item,
       isEditing: false
     };
   },
@@ -49506,13 +49501,13 @@ Vue.component('todo-list-item', {
     updateName: function updateName() {
       var _this5 = this;
 
-      if (this.dataItem.name.trim() == '') {
+      if (this.item.name.trim() == '') {
         alert('Task name cannot be blank');
         return;
       }
 
-      axios.put('/todoListItems/' + this.dataItem.id, {
-        name: this.dataItem.name
+      axios.put('/todoListItems/' + this.item.id, {
+        name: this.item.name
       }).then(function (response) {
         _this5.isEditing = false;
       });
@@ -49520,10 +49515,11 @@ Vue.component('todo-list-item', {
     markDone: function markDone() {
       var _this6 = this;
 
-      console.log(this.dataItem.isDone);
-      var url = '/todoListItems/' + this.dataItem.id + (!this.dataItem.isDone ? '/markDone' : '/undoMarkDone');
+      console.log(this.item);
+      console.log(this.item.isDone);
+      var url = '/todoListItems/' + this.item.id + (!this.item.isDone ? '/markDone' : '/undoMarkDone');
       axios.post(url, {}).then(function (response) {
-        _this6.dataItem.isDone = response.data.is_done == 1 ? true : false;
+        _this6.item.isDone = response.data.is_done == 1 ? true : false;
       });
     }
   }
@@ -49576,11 +49572,12 @@ var app = new Vue({
     var _this8 = this;
 
     Event.listen('newListAdded', function (newItem) {
-      //this.todoLists.unshift(newItem); // Do not know why this one does not work yet
+      _this8.todoLists.unshift(newItem); // Do not know why this one does not work yet
       // Alternative solution is to reset the list and reload from server
-      _this8.todoLists = [];
 
-      _this8.loadTodoLists();
+      /* this.todoLists = [];
+      this.loadTodoLists(); */
+
     });
     Event.listen('listDeleted', function (newItem) {
       _this8.todoLists = [];
