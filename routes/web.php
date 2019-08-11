@@ -27,6 +27,8 @@ Route::resource('todoLists', 'TodoListController')->only([
 // Routes for TodoListItem model's actions
 Route::post('todoListItems/{todoListItem}/markDone', 'TodoListItemController@markDone')
     ->name('todoListItems.markDone');
+Route::post('todoListItems/{todoListItem}/undoMarkDone', 'TodoListItemController@undoMarkDone')
+    ->name('todoListItems.undoMarkDone');
 Route::resource('todoListItems', 'TodoListItemController')->only([
     'store', 'update', 'destroy'
 ])->middleware('auth');

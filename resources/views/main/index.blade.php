@@ -33,25 +33,35 @@
 @endsection
 
 <style>
-.inline-edit-text {
+.inline-edit-text input[type=text], input.inline-edit-text {
     border: none;
     background: #F7F7F7;
     margin-bottom: 5px;
     padding: 5px;
     width: 100%;
 }
-.inline-edit-text.is-done {
+.inline-edit-text .is-done {
     text-decoration: line-through;
 }
-.inline-edit-text:hover {
-    border-bottom: 1px solid #bcbcbc;
+.inline-edit-text input[type=text]:hover, input.inline-edit-text[type=text]:hover {
+    /* box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-bottom: 1px solid #bcbcbc; */
+    background-color: #f4f4f4 !important;
 }
-.list-item {
+.list-item input[type=text] {
     background: #FFF !important;
 }
 .inline-button-save {
 }
 [type=checkbox] {
     margin-top: 10px;
+}
+.save {
+    display: none;
+}
+.is-editing .save {
+    display: inline !important;
 }
 </style>

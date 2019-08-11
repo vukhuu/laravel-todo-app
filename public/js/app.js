@@ -49333,6 +49333,10 @@ module.exports = function(module) {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -49358,8 +49362,32 @@ Vue.component('example-component', __webpack_require__(/*! ./components/ExampleC
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+window.Event = new (
+/*#__PURE__*/
+function () {
+  function _class() {
+    _classCallCheck(this, _class);
+
+    this.vue = new Vue();
+  }
+
+  _createClass(_class, [{
+    key: "fire",
+    value: function fire(event) {
+      var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      this.vue.$emit(event, data);
+    }
+  }, {
+    key: "listen",
+    value: function listen(event, callback) {
+      this.vue.$on(event, callback);
+    }
+  }]);
+
+  return _class;
+}())();
 Vue.component('new-todo-box', {
-  template: "\n        <div>\n        I would like to add a <input type=\"text\" placeholder=\"new note\" v-model=\"newNote\"> \n        under \n        <select>\n        <option>a new list called</option>\n        </select>\n        <input type=\"text\" placeholder=\"list name\" v-model=\"newList\">\n        <button type=\"button\" class=\"btn btn-primary\" @click=\"createNewList\">Go</button>\n        </div>\n        ",
+  template: "\n        <div>\n        I would like to add a <input type=\"text\" placeholder=\"new task\" v-model=\"newNote\"> \n        under \n        <input type=\"text\" placeholder=\"list name\" v-model=\"newList\">\n        <button type=\"button\" class=\"btn btn-primary\" @click=\"createNewList\">Go</button>\n        </div>\n        ",
   data: function data() {
     return {
       newNote: '',
@@ -49374,58 +49402,117 @@ Vue.component('new-todo-box', {
     createNewList: function createNewList() {
       var _this = this;
 
+      if (this.newNote.trim() == '' || this.newList.trim() == '') {
+        alert('Task and list cannot be blank');
+        return;
+      }
+
       axios.post('/todoLists', {
         title: this.newList,
         todo_list_items: [{
           name: this.newNote
         }]
       }).then(function (response) {
-        console.log(response);
-
         _this.reset();
+
+        var item = response.data.todo_list_items[0];
+        var todoItem = new TodoListItem(item.id, item.name, item.isDone);
+        var todoList = new TodoList(response.data.id, response.data.title, [todoItem]);
+        Event.fire('newListAdded', todoList);
       });
     }
   }
 });
 Vue.component('todo-list', {
-  template: "\n    <div class=\"card\">\n        <div class=\"card-header\">\n            <div class=\"row\">\n                <div class=\"col-md-10\">\n                    <input type=\"text\" v-model=\"dataList.title\" class=\"inline-edit-text\" title=\"Click to edit\">\n                </div>\n                <div class=\"col-md-2\">\n                    <button type=\"button\" class=\"button primary\" @click=\"updateTitle(dataList)\">Save</button>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-body\">\n            <div v-for=\"item in dataList.todo_list_items\" class=\"row\">\n                <div class=\"col-md-1\"><input type=\"checkbox\"></div>\n                <div class=\"col-md-9\">\n                    <input type=\"text\" class=\"inline-edit-text list-item\" v-model=\"item.name\" title=\"Click to edit\">\n                </div>\n                <div class=\"col-md-2\">\n                    <button type=\"button\" class=\"button primary inline-button-save\" @click=\"updateName(item)\">Save</button>\n                </div>\n            </div>\n            <hr>\n            <div class=\"row\">\n                <div class=\"col-md-10\">\n                    <input type=\"text\" class=\"inline-edit-text\" placeholder=\"New item\" v-model=\"newItemValue\">\n                </div>\n                <div class=\"col-md-2\">\n                    <button type=\"button\" class=\"button primary inline-button-save\" @click=\"createNewItem\">Save</button>\n                </div>\n            </div>\n        </div>\n    </div>\n    ",
+  template: "\n    <div class=\"card clearfix\">\n        <div class=\"card-header\">\n            <div class=\"row\" v-bind:class=\"{ 'is-editing': isEditing }\">\n                <div class=\"col-md-10\">\n                    <input type=\"text\" v-model=\"dataList.title\" class=\"inline-edit-text\" title=\"Click to edit\" @focus=\"isEditing = true\">\n                    <i class=\"fa fa-id-card-o\" aria-hidden=\"true\"></i>\nabc\n                </div>\n                <div class=\"col-md-2\">\n                    <button type=\"button\" class=\"button primary save\" @click=\"updateTitle(dataList)\">Save</button>\n                </div>\n            </div>\n        </div>\n        <div class=\"card-body\">\n            <div v-for=\"item in dataList.todo_list_items\">\n                <todo-list-item v-bind:item=\"item\"></todo-list-item>\n            </div>\n            <hr>\n            <div class=\"row\" v-bind:class=\"{ 'is-editing': isAddingNewTask }\">\n                <div class=\"col-md-10\">\n                    <input type=\"text\" class=\"inline-edit-text\" placeholder=\"New task\" v-model=\"newItemValue\" title=\"Click to add new task\" @focus=\"isAddingNewTask = true\">\n                </div>\n                <div class=\"col-md-2\">\n                    <button type=\"button\" class=\"button primary inline-button-save save\" @click=\"createNewItem\">Save</button>\n                </div>\n            </div>\n        </div>\n    </div>\n    ",
   props: {
     list: Object
   },
   data: function data() {
     return {
       newItemValue: '',
-      dataList: this.list
+      dataList: this.list,
+      isEditing: false,
+      isAddingNewTask: false
     };
   },
   methods: {
     resetAddNewForm: function resetAddNewForm() {
       this.newItemValue = '';
+      this.isAddingNewTask = false;
     },
     updateTitle: function updateTitle(list) {
+      var _this2 = this;
+
+      if (list.title.trim() == '') {
+        alert('List title cannot be blank');
+        return;
+      }
+
       axios.put('/todoLists/' + list.id, {
         title: list.title
       }).then(function (response) {
-        list.isEditing = false;
-      });
-    },
-    updateName: function updateName(listItem) {
-      axios.put('/todoListItems/' + listItem.id, {
-        name: listItem.name
-      }).then(function (response) {
-        listItem.isEditing = false;
+        _this2.isEditing = false;
       });
     },
     createNewItem: function createNewItem() {
-      var me = this;
+      var _this3 = this;
+
+      if (this.newItemValue.trim() == '') {
+        alert('Task cannot be blank');
+        return;
+      }
+
       axios.post('/todoListItems/', {
         name: this.newItemValue,
         todo_list_id: this.list.id
       }).then(function (response) {
-        me.dataList.todo_list_items.push({
-          name: response.data.name
-        });
-        me.resetAddNewForm();
+        var todoListItem = new TodoListItem();
+        todoListItem.id = response.data.id;
+        todoListItem.name = response.data.name;
+        todoListItem.isDone = response.data.is_done;
+
+        _this3.dataList.todo_list_items.push(todoListItem);
+
+        _this3.resetAddNewForm();
+      });
+    }
+  }
+});
+Vue.component('todo-list-item', {
+  template: "\n        <div class=\"row\">\n            <div class=\"col-md-1\">\n                <input type=\"checkbox\" @click=\"markDone\" v-model=\"dataItem.isDone\" true-value=\"true\" false-value=\"false\">\n            </div>\n            <div class=\"col-md-9 inline-edit-text list-item\">\n                <input type=\"text\" v-bind:class=\"{ 'is-done': dataItem.isDone }\" v-model=\"dataItem.name\" title=\"Click to edit\" @focus=\"isEditing = true\">\n            </div>\n            <div class=\"col-md-2\" v-bind:class=\"{ 'is-editing': isEditing }\">\n                <button type=\"button\" class=\"button primary inline-button-save save\" @click=\"updateName\">Save</button>\n            </div>\n        </div>\n    ",
+  props: {
+    item: Object
+  },
+  data: function data() {
+    return {
+      newItem: '',
+      dataItem: this.item,
+      isEditing: false
+    };
+  },
+  methods: {
+    updateName: function updateName() {
+      var _this4 = this;
+
+      if (this.dataItem.name.trim() == '') {
+        alert('Task name cannot be blank');
+        return;
+      }
+
+      axios.put('/todoListItems/' + this.dataItem.id, {
+        name: this.dataItem.name
+      }).then(function (response) {
+        _this4.isEditing = false;
+      });
+    },
+    markDone: function markDone() {
+      var _this5 = this;
+
+      console.log(this.dataItem.isDone);
+      var url = '/todoListItems/' + this.dataItem.id + (!this.dataItem.isDone ? '/markDone' : '/undoMarkDone');
+      axios.post(url, {}).then(function (response) {
+        _this5.dataItem.isDone = response.data.is_done == 1 ? true : false;
       });
     }
   }
@@ -49436,7 +49523,7 @@ var TodoListItem = function TodoListItem(id, name, isDone) {
 
   this.id = id;
   this.name = name;
-  this.isDone = isDone;
+  this.isDone = isDone == 1 ? true : false;
 };
 
 var TodoList = function TodoList(id, title, items) {
@@ -49447,21 +49534,20 @@ var TodoList = function TodoList(id, title, items) {
   this.todo_list_items = items;
 };
 
-var todoLists = [];
 var app = new Vue({
   el: '#app',
   data: {
     newNote: '',
     newListName: '',
-    todoLists: todoLists
+    todoLists: []
   },
   methods: {
     loadTodoLists: function loadTodoLists() {
-      var _this2 = this;
+      var _this6 = this;
 
       axios.get('/todoLists').then(function (response) {
         var data = response.data;
-        _this2.todoLists = [];
+        _this6.todoLists = [];
         data.forEach(function (row) {
           var items = [];
           row.todo_list_items.forEach(function (item) {
@@ -49470,10 +49556,22 @@ var app = new Vue({
           });
           var todoList = new TodoList(row.id, row.title, items);
 
-          _this2.todoLists.push(todoList);
+          _this6.todoLists.push(todoList);
         });
       });
     }
+  },
+  created: function created() {
+    var _this7 = this;
+
+    Event.listen('newListAdded', function (newItem) {
+      console.log(newItem); //this.todoLists.unshift(newItem); // Do not know why this one does not work yet
+      // Alternative solution is to reset the list and reload from server
+
+      _this7.todoLists = [];
+
+      _this7.loadTodoLists();
+    });
   },
   mounted: function mounted() {
     this.loadTodoLists();

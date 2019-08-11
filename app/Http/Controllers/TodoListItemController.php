@@ -59,4 +59,18 @@ class TodoListItemController extends Controller
         $repo->markDone($todoListItem);
         return $todoListItem;
     }
+
+    /**
+     * Mark an item as undone
+     *
+     * @param  \App\TodoListItem  $todoListItem
+     * @param  TodoListItemRepositoryInterface  $repo
+     * 
+     * @return \Illuminate\Http\Response
+     */
+    public function undoMarkDone(TodoListItem $todoListItem, TodoListItemRepositoryInterface $repo)
+    {
+        $repo->undoMarkDone($todoListItem);
+        return $todoListItem;
+    }
 }

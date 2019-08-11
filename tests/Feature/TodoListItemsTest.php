@@ -80,6 +80,26 @@ class TodoListItemsTest extends TestCase
 
     public function testMarkDoneTodoListItem()
     {
+        $this->signIn();
+        
+        // Create a todo list first
+        $listAttributes = factory(TodoList::class)->raw();
+        $itemAttributes = factory(TodoListItem::class)->raw();
+        $response = $this->createTodoList($listAttributes, $itemAttributes);
+        $content = json_decode($response->getContent(), true);
+        
+        $firstTodoItem = $content['todo_list_items'][0];
+
+        // Mark as done
+        $url = route('todoListItems.markDone', ['todoListItem' => $firstTodoItem['id']]);
+        $response = $this->json('POST', $url);
+        $response->assertStatus(200);
+        $model = TodoListItem::find($firstTodoItem['id']);
+        $this->assertTrue($model->is_done == 1);
+    }
+
+    public function testUndoMarkDoneTodoListItem()
+    {
         $this->withoutExceptionHandling();
         $this->signIn();
         
@@ -91,10 +111,18 @@ class TodoListItemsTest extends TestCase
         
         $firstTodoItem = $content['todo_list_items'][0];
 
+        // Mark as done
         $url = route('todoListItems.markDone', ['todoListItem' => $firstTodoItem['id']]);
         $response = $this->json('POST', $url);
         $response->assertStatus(200);
         $model = TodoListItem::find($firstTodoItem['id']);
         $this->assertTrue($model->is_done == 1);
+
+        // Mark as undone
+        $url = route('todoListItems.undoMarkDone', ['todoListItem' => $firstTodoItem['id']]);
+        $response = $this->json('POST', $url);
+        $response->assertStatus(200);
+        $model = TodoListItem::find($firstTodoItem['id']);
+        $this->assertTrue($model->is_done == 0);
     }
 }

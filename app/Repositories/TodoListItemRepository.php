@@ -62,7 +62,23 @@ class TodoListItemRepository implements TodoListItemRepositoryInterface
     public function markDone(TodoListItem $todoListItem)
     {
         $todoListItem->is_done = 1;
-        $todoListItem->save();
+        $updated = $todoListItem->save();
+        if ($updated) {
+            $this->activityLogger->log('todoListitem.markDone', $todoListItem->id);
+        }
+        return $todoListItem;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function undoMarkDone(TodoListItem $todoListItem)
+    {
+        $todoListItem->is_done = 0;
+        $updated = $todoListItem->save();
+        if ($updated) {
+            $this->activityLogger->log('todoListitem.undoMarkDone', $todoListItem->id);
+        }
         return $todoListItem;
     }
 }

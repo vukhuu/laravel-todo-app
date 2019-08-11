@@ -38,4 +38,11 @@ interface TodoListItemRepositoryInterface
      * @param TodoListItem $todoListItem
      */
     public function markDone(TodoListItem $todoListItem);
+
+    /**
+     * Mark a TodoListItem as not done
+     * 
+     * @param TodoListItem $todoListItem
+     */
+    public function undoMarkDone(TodoListItem $todoListItem);
 }

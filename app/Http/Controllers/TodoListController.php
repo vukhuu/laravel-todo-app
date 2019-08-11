@@ -41,9 +41,12 @@ class TodoListController extends Controller
         $listAttributes['owner_id'] = auth()->id();
         $items = $request->get('todo_list_items');
         $list = $listRepository->createWithItems($listAttributes, $items);
-
+        
+        $listAsArray = $list->attributesToArray();
+        $listAsArray['todo_list_items'] = $list->todoListItems;
         $response = new Response();
-        $response->setContent($list->with('todoListItems')->first());
+        //$response->setContent($list->with('todoListItems')->first());
+        $response->setContent($listAsArray);
         $response->setStatusCode(201);
         return $response;
     }
