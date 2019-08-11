@@ -87,13 +87,12 @@ Vue.component('todo-list', {
     <div class="card clearfix">
         <div class="card-header">
             <div class="row" v-bind:class="{ 'is-editing': isEditing }">
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <input type="text" v-model="dataList.title" class="inline-edit-text" title="Click to edit" @focus="isEditing = true">
-                    <i class="fa fa-id-card-o" aria-hidden="true"></i>
-abc
                 </div>
-                <div class="col-md-2">
-                    <button type="button" class="button primary save" @click="updateTitle(dataList)">Save</button>
+                <div class="col-md-3">
+                    <button type="button" class="button remove" @click="deleteList" title="Delete"><i class="fa fa-remove" aria-hidden="true"></i></button>
+                    <button type="button" class="button primary save" @click="updateTitle(dataList)" title="Save"><i class="fa fa-check-square" aria-hidden="true"></i></button>
                 </div>
             </div>
         </div>
@@ -103,11 +102,11 @@ abc
             </div>
             <hr>
             <div class="row" v-bind:class="{ 'is-editing': isAddingNewTask }">
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <input type="text" class="inline-edit-text" placeholder="New task" v-model="newItemValue" title="Click to add new task" @focus="isAddingNewTask = true">
                 </div>
-                <div class="col-md-2">
-                    <button type="button" class="button primary inline-button-save save" @click="createNewItem">Save</button>
+                <div class="col-md-3">
+                    <button type="button" class="button primary inline-button-save save" @click="createNewItem" title="Save"><i class="fa fa-check-square" aria-hidden="true"></i></button>
                 </div>
             </div>
         </div>
@@ -121,7 +120,8 @@ abc
             newItemValue: '',
             dataList: this.list,
             isEditing: false,
-            isAddingNewTask: false
+            isAddingNewTask: false,
+            isDeleted: false
         };
     },
     
@@ -157,6 +157,14 @@ abc
                 this.dataList.todo_list_items.push(todoListItem);
                 this.resetAddNewForm();
             });
+        },
+        deleteList: function() {
+            if (confirm('Are you sure you want to delete this list?')) {
+                axios.delete('/todoLists/' + this.dataList.id).then((response) => {
+                    this.dataList.isDeleted = true;
+                    Event.fire('listDeleted');
+                });
+            }
         }
     }
 });
@@ -171,7 +179,7 @@ Vue.component('todo-list-item', {
                 <input type="text" v-bind:class="{ 'is-done': dataItem.isDone }" v-model="dataItem.name" title="Click to edit" @focus="isEditing = true">
             </div>
             <div class="col-md-2" v-bind:class="{ 'is-editing': isEditing }">
-                <button type="button" class="button primary inline-button-save save" @click="updateName">Save</button>
+                <button type="button" class="button primary inline-button-save save" @click="updateName" title="Save"><i class="fa fa-check-square" aria-hidden="true"></i></button>
             </div>
         </div>
     `,
@@ -254,12 +262,15 @@ const app = new Vue({
     },
     created() {
         Event.listen('newListAdded', (newItem) => {
-            console.log(newItem);
             //this.todoLists.unshift(newItem); // Do not know why this one does not work yet
             // Alternative solution is to reset the list and reload from server
             this.todoLists = [];
             this.loadTodoLists();
-        })
+        });
+        Event.listen('listDeleted', (newItem) => {
+            this.todoLists = [];
+            this.loadTodoLists();
+        });
     },
     mounted() {
         this.loadTodoLists();

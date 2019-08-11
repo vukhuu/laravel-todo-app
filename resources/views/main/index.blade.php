@@ -59,7 +59,16 @@
     margin-top: 10px;
 }
 .save {
+    color: #227DC7;
     display: none;
+    padding: 8px;
+    float: right;
+}
+.remove {
+    color: #227DC7;
+    float: right;
+    margin-left: 3px;
+    padding: 8px;
 }
 .is-editing .save {
     display: inline !important;
