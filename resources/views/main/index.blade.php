@@ -21,21 +21,7 @@
 
                         <div class="card-body clearfix">
                             <div class="col-md-6 float-left" v-for="list in todoLists" style="margin-bottom: 30px">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <input type="text" v-model="list.title">
-                                        <button type="button" class="button primary" @click="updateTitle(list)">Save</button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div v-for="item in list.items">
-                                            <input type="text" v-model="item.name">
-                                            <button type="button" class="button primary" @click="updateName(item)">Save</button>
-                                        </div>
-                                        <hr>
-                                        <input type="text" placeholder="New item">
-                                        <button type="button" class="button primary">Save</button>
-                                    </div>
-                                </div>
+                                <todo-list v-bind:list="list"></todo-list>
                             </div>
                         </div>
                     </div>
@@ -45,3 +31,27 @@
     </div>
 </div>
 @endsection
+
+<style>
+.inline-edit-text {
+    border: none;
+    background: #F7F7F7;
+    margin-bottom: 5px;
+    padding: 5px;
+    width: 100%;
+}
+.inline-edit-text.is-done {
+    text-decoration: line-through;
+}
+.inline-edit-text:hover {
+    border-bottom: 1px solid #bcbcbc;
+}
+.list-item {
+    background: #FFF !important;
+}
+.inline-button-save {
+}
+[type=checkbox] {
+    margin-top: 10px;
+}
+</style>

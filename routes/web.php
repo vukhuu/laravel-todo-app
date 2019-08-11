@@ -30,3 +30,8 @@ Route::post('todoListItems/{todoListItem}/markDone', 'TodoListItemController@mar
 Route::resource('todoListItems', 'TodoListItemController')->only([
     'store', 'update', 'destroy'
 ])->middleware('auth');
+
+// Routes for frontend web app
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/main', 'MainController@index');
+});
