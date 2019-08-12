@@ -20,6 +20,7 @@
                         <div class="card-header">Your todo lists</div>
 
                         <div class="card-body clearfix">
+                            <div v-if="todoLists.length == 0">You have not got any todo list yet</div>
                             <div class="col-md-6 float-left" v-for="list in todoLists" style="margin-bottom: 30px">
                                 <todo-list v-bind:list="list"></todo-list>
                             </div>
