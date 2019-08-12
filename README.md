@@ -3,7 +3,7 @@ A simple todo app built with Laravel and VueJS
 ## Features
 Laravel 5.8
 
-VueJS 2.0
+VueJS 2.x
 
 TDD
 
