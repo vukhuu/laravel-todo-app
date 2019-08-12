@@ -1,5 +1,4 @@
-## About
-This is a simple todo app
+A simple todo app built with Laravel and VueJS
 
 ## Features
 Laravel 5.8
