@@ -157,8 +157,8 @@ Vue.component('todo-list', {
         deleteList: function() {
             if (confirm('Are you sure you want to delete this list?')) {
                 axios.delete('/todoLists/' + this.list.id).then((response) => {
-                    this.list.isDeleted = true;
-                    Event.fire('listDeleted');
+                    this.isDeleted = true;
+                    Event.fire('listDeleted', this.list);
                 });
             }
         }
@@ -258,14 +258,16 @@ const app = new Vue({
     },
     created() {
         Event.listen('newListAdded', (newItem) => {
-            this.todoLists.unshift(newItem); // Do not know why this one does not work yet
-            // Alternative solution is to reset the list and reload from server
-            /* this.todoLists = [];
-            this.loadTodoLists(); */
+            this.todoLists.unshift(newItem);
         });
-        Event.listen('listDeleted', (newItem) => {
-            this.todoLists = [];
-            this.loadTodoLists();
+        Event.listen('listDeleted', (deletedList) => {
+            for(let i=0; i<this.todoLists.length; i++) {
+                let list = this.todoLists[i];
+                if (list['id'] == deletedList['id']) {
+                    this.todoLists.splice(i, 1);
+                    break;
+                }
+            }
         });
     },
     mounted() {
