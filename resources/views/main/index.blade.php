@@ -59,12 +59,16 @@
     margin-top: 10px;
 }
 .save {
+    background: none;
+    border:none;
     color: #227DC7;
     display: none;
     padding: 8px;
     float: right;
 }
 .remove {
+    background: none;
+    border:none;
     color: #227DC7;
     float: right;
     margin-left: 3px;
