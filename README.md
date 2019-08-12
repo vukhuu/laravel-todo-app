@@ -28,7 +28,7 @@ Run `php artisan serve`
 
 Access `localhost:8000/main`
 
-Default user to log in is `jon.snow@gmail.com`, `thisisadmin`. Please feel free to register for a new user.
+Default user to log in is `jon.snow@gmail.com`, `thisisadmin`.
 
 Unit test can be run by executung `vendor\bin\phpunit`
 
