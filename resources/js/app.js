@@ -16,16 +16,19 @@ window.Vue = require('vue');
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
 
-// const files = require.context('./', true, /\.vue$/i);
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
+const files = require.context('./', true, /\.vue$/i);
+files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+//Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
+
+import TodoList from './models/TodoList';
+import TodoListItem from './models/TodoListItem';
 
 window.Event = new class {
     constructor() {
@@ -38,219 +41,6 @@ window.Event = new class {
 
     listen(event, callback) {
         this.vue.$on(event, callback);
-    }
-}
-
-Vue.component('new-todo-box', {
-    template: `
-        <div>
-        I would like to add a <input type="text" placeholder="new task" v-model="newNote"> 
-        under 
-        <input type="text" placeholder="list name" v-model="newList">
-        <button type="button" class="btn btn-primary" @click="createNewList">Go</button>
-        </div>
-        `,
-    data: function() {
-        return {
-            newNote: '',
-            newList: ''
-        };
-    },
-    methods: {
-        reset() {
-            this.newNote = '';
-            this.newList = '';
-        },
-        createNewList() {
-            if (this.newNote.trim() == '' || this.newList.trim() == '') {
-                alert('Task and list cannot be blank');
-                return;
-            }
-            axios.post('/todoLists', {
-                title: this.newList,
-                todo_list_items: [
-                    { name: this.newNote }
-                ]
-            }).then((response) => {
-                this.reset();
-                let item = response.data.todo_list_items[0];
-                let todoItem = new TodoListItem(item.id, item.name, item.isDone, item.todo_list_id);
-                let todoList = new TodoList(response.data.id, response.data.title, [todoItem]);
-                Event.fire('newListAdded', todoList);
-            });
-        }
-    }
-});
-
-Vue.component('todo-list', {
-    template: `
-    <div class="card clearfix">
-        <div class="card-header">
-            <div class="row" v-bind:class="{ 'is-editing': isEditing }">
-                <div class="col-md-9">
-                    <input type="text" v-model="list.title" class="inline-edit-text" title="Click to edit" @focus="isEditing = true">
-                </div>
-                <div class="col-md-3">
-                    <button type="button" class="button remove" @click="deleteList" title="Delete"><i class="fa fa-remove" aria-hidden="true"></i></button>
-                    <button type="button" class="button primary save" @click="updateTitle(list)" title="Save"><i class="fa fa-check-square" aria-hidden="true"></i></button>
-                </div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div v-if="list.todo_list_items.length == 0">There is no task in this list</div>
-            <div v-for="item in list.todo_list_items">
-                <todo-list-item v-bind:item="item" v-on:itemDeleted="deleteItem"></todo-list-item>
-            </div>
-            <hr>
-            <div class="row" v-bind:class="{ 'is-editing': isAddingNewTask }">
-                <div class="col-md-9">
-                    <input type="text" class="inline-edit-text" placeholder="New task" v-model="newItemValue" title="Click to add new task" @focus="isAddingNewTask = true">
-                </div>
-                <div class="col-md-3">
-                    <button type="button" class="button primary inline-button-save save" @click="createNewItem" title="Save"><i class="fa fa-check-square" aria-hidden="true"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-    `,
-    props: {
-        list: Object
-    },
-    data() {
-        return {
-            newItemValue: '',
-            isEditing: false,
-            isAddingNewTask: false,
-            isDeleted: false
-        };
-    },
-    
-    methods: {
-        resetAddNewForm() {
-            this.newItemValue = '';
-            this.isAddingNewTask = false;
-        },
-        updateTitle(list) {
-            if (list.title.trim() == '') {
-                alert('List title cannot be blank');
-                return;
-            }
-            axios.put('/todoLists/' + list.id, {
-                title: list.title
-            }).then((response) => {
-                this.isEditing = false;
-            });
-        },
-        createNewItem: function() {
-            if (this.newItemValue.trim() == '') {
-                alert('Task cannot be blank');
-                return;
-            }
-            axios.post('/todoListItems/', {
-                name: this.newItemValue,
-                todo_list_id: this.list.id
-            }).then((response) => {
-                let todoListItem = new TodoListItem(response.data.id, response.data.name, response.data.is_done, response.data.todo_list_id);
-                this.list.todo_list_items.push(todoListItem);
-                this.resetAddNewForm();
-            });
-        },
-        deleteList: function() {
-            if (confirm('Are you sure you want to delete this list?')) {
-                axios.delete('/todoLists/' + this.list.id).then((response) => {
-                    this.isDeleted = true;
-                    Event.fire('listDeleted', this.list);
-                });
-            }
-        },
-        deleteItem(data) {
-            console.log(data);
-            let itemId = data.itemId;
-            
-            for(let i=0; i<this.list.todo_list_items.length; i++) { // should use "index" instead?
-                if (this.list.todo_list_items[i].id == itemId) {
-                    this.list.todo_list_items.splice(i, 1);
-                    break;
-                }
-            }
-        }
-    }
-});
-
-Vue.component('todo-list-item', {
-    template: `
-        <div class="row">
-            <div class="col-md-1">
-                <input type="checkbox" @click="markDone" v-model="item.isDone" true-value="true" false-value="false">
-            </div>
-            <div class="col-md-9 inline-edit-text list-item">
-                <input type="text" v-bind:class="{ 'is-done': item.isDone }" v-model="item.name" title="Click to edit" @focus="isEditing = true">
-            </div>
-            <div class="col-md-2" v-bind:class="{ 'is-editing': isEditing }">
-                <button type="button" class="button remove" @click="deleteItem" title="Delete"><i class="fa fa-remove" aria-hidden="true"></i></button>
-                <button type="button" class="button primary inline-button-save save" @click="updateName" title="Save"><i class="fa fa-check-square" aria-hidden="true"></i></button>
-            </div>
-        </div>
-    `,
-    props: {
-        item: Object
-    },
-    data() {
-        return {
-            newItem: '',
-            isEditing: false
-        };
-    },
-    methods: {
-        updateName() {
-            if (this.item.name.trim() == '') {
-                alert('Task name cannot be blank');
-                return;
-            }
-            axios.put('/todoListItems/' + this.item.id, {
-                name: this.item.name
-            }).then((response) => {
-                this.isEditing = false;
-            });
-        },
-        markDone() {
-            const url = '/todoListItems/' + this.item.id
-                        + (!this.item.isDone ? '/markDone' : '/undoMarkDone');
-            axios.post(url, {
-
-            }).then((response) => {
-                this.item.isDone = response.data.is_done == 1 ? true : false;
-            });
-        },
-        deleteItem() {
-            if (confirm('Are you sure you want to delete this item?')) {
-                axios.delete('todoListItems/' + this.item.id, {}).then((response) => {
-                    this.$emit('itemDeleted', {
-                        itemId: this.item.id,
-                        todoListId: this.item.todoListId
-                    })
-                });
-            }
-        }
-    }
-});
-
-class TodoListItem
-{
-    constructor(id, name, isDone, todoListId) {
-        this.id = id;
-        this.name = name;
-        this.isDone = isDone == 1 ? true : false;
-        this.todoListId = todoListId;
-    }
-}
-
-class TodoList
-{
-    constructor(id, title, items) {
-        this.id = id;
-        this.title = title;
-        this.todo_list_items = items;
     }
 }
 

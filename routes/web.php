@@ -35,5 +35,5 @@ Route::resource('todoListItems', 'TodoListItemController')->only([
 
 // Routes for frontend web app
 Route::group(['middleware' => 'auth'], function () {
-    Route::get('/main', 'MainController@index');
+    Route::get('/main', 'MainController@index')->name('main');
 });
