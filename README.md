@@ -1,5 +1,12 @@
 ## About
-This is a simple todo app implemented with Laravel (5.8) and VueJS 2.0 with TDD applied
+This is a simple todo app
+
+## Features
+Laravel 5.8
+VueJS 2.0
+TDD
+Repository pattern as service providers and dependency injection
+Activity logger
 
 ## Installation
 Please check for requirements to run Laravel 5.8 at https://laravel.com/docs/5.8/installation
