@@ -3,9 +3,13 @@ This is a simple todo app
 
 ## Features
 Laravel 5.8
+
 VueJS 2.0
+
 TDD
+
 Repository pattern as service providers and dependency injection
+
 Activity logger
 
 ## Installation
