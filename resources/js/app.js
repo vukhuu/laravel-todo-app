@@ -74,7 +74,7 @@ Vue.component('new-todo-box', {
             }).then((response) => {
                 this.reset();
                 let item = response.data.todo_list_items[0];
-                let todoItem = new TodoListItem(item.id, item.name, item.isDone);
+                let todoItem = new TodoListItem(item.id, item.name, item.isDone, item.todo_list_id);
                 let todoList = new TodoList(response.data.id, response.data.title, [todoItem]);
                 Event.fire('newListAdded', todoList);
             });
@@ -97,8 +97,9 @@ Vue.component('todo-list', {
             </div>
         </div>
         <div class="card-body">
+            <div v-if="list.todo_list_items.length == 0">There is no task in this list</div>
             <div v-for="item in list.todo_list_items">
-                <todo-list-item v-bind:item="item"></todo-list-item>
+                <todo-list-item v-bind:item="item" v-on:itemDeleted="deleteItem"></todo-list-item>
             </div>
             <hr>
             <div class="row" v-bind:class="{ 'is-editing': isAddingNewTask }">
@@ -149,7 +150,7 @@ Vue.component('todo-list', {
                 name: this.newItemValue,
                 todo_list_id: this.list.id
             }).then((response) => {
-                let todoListItem = new TodoListItem(response.data.id, response.data.name, response.data.is_done);
+                let todoListItem = new TodoListItem(response.data.id, response.data.name, response.data.is_done, response.data.todo_list_id);
                 this.list.todo_list_items.push(todoListItem);
                 this.resetAddNewForm();
             });
@@ -160,6 +161,17 @@ Vue.component('todo-list', {
                     this.isDeleted = true;
                     Event.fire('listDeleted', this.list);
                 });
+            }
+        },
+        deleteItem(data) {
+            console.log(data);
+            let itemId = data.itemId;
+            
+            for(let i=0; i<this.list.todo_list_items.length; i++) { // should use "index" instead?
+                if (this.list.todo_list_items[i].id == itemId) {
+                    this.list.todo_list_items.splice(i, 1);
+                    break;
+                }
             }
         }
     }
@@ -175,6 +187,7 @@ Vue.component('todo-list-item', {
                 <input type="text" v-bind:class="{ 'is-done': item.isDone }" v-model="item.name" title="Click to edit" @focus="isEditing = true">
             </div>
             <div class="col-md-2" v-bind:class="{ 'is-editing': isEditing }">
+                <button type="button" class="button remove" @click="deleteItem" title="Delete"><i class="fa fa-remove" aria-hidden="true"></i></button>
                 <button type="button" class="button primary inline-button-save save" @click="updateName" title="Save"><i class="fa fa-check-square" aria-hidden="true"></i></button>
             </div>
         </div>
@@ -201,8 +214,6 @@ Vue.component('todo-list-item', {
             });
         },
         markDone() {
-            console.log(this.item);
-            console.log(this.item.isDone);
             const url = '/todoListItems/' + this.item.id
                         + (!this.item.isDone ? '/markDone' : '/undoMarkDone');
             axios.post(url, {
@@ -210,16 +221,27 @@ Vue.component('todo-list-item', {
             }).then((response) => {
                 this.item.isDone = response.data.is_done == 1 ? true : false;
             });
+        },
+        deleteItem() {
+            if (confirm('Are you sure you want to delete this item?')) {
+                axios.delete('todoListItems/' + this.item.id, {}).then((response) => {
+                    this.$emit('itemDeleted', {
+                        itemId: this.item.id,
+                        todoListId: this.item.todoListId
+                    })
+                });
+            }
         }
     }
 });
 
 class TodoListItem
 {
-    constructor(id, name, isDone) {
+    constructor(id, name, isDone, todoListId) {
         this.id = id;
         this.name = name;
         this.isDone = isDone == 1 ? true : false;
+        this.todoListId = todoListId;
     }
 }
 
@@ -247,7 +269,7 @@ const app = new Vue({
                 data.forEach((row) => {
                     let items = [];
                     row.todo_list_items.forEach((item) => {
-                        let todoListItem = new TodoListItem(item.id, item.name, item.is_done);
+                        let todoListItem = new TodoListItem(item.id, item.name, item.is_done, item.todo_list_id);
                         items.push(todoListItem);
                     });
                     let todoList = new TodoList(row.id, row.title, items);
