@@ -1,5 +1,15 @@
-## About
-This is a simple todo app implemented with Laravel (5.8) and VueJS 2.0 with TDD applied
+A simple todo app built with Laravel and VueJS
+
+## Features
+Laravel 5.8
+
+VueJS 2.x
+
+TDD
+
+Repository pattern as service providers and dependency injection
+
+Activity logger
 
 ## Installation
 Please check for requirements to run Laravel 5.8 at https://laravel.com/docs/5.8/installation
@@ -18,7 +28,7 @@ Run `php artisan serve`
 
 Access `localhost:8000/main`
 
-Default user to log in is `jon.snow@gmail.com`, `thisisadmin`. Please feel free to register for a new user.
+Default user to log in is `jon.snow@gmail.com`, `thisisadmin`.
 
 Unit test can be run by executung `vendor\bin\phpunit`
 
