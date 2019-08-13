@@ -64,16 +64,17 @@
     border:none;
     color: #227DC7;
     display: none;
-    padding: 8px;
+    /* padding: 8px; */
     float: right;
+    margin: 8px 0 0 0;
 }
 .remove {
     background: none;
     border:none;
     color: #227DC7;
     float: right;
-    margin-left: 3px;
-    padding: 8px;
+    margin: 8px 0 0 0;
+    /* padding: 8px; */
 }
 .is-editing .save {
     display: inline !important;
