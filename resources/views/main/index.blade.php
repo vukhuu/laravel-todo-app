@@ -83,4 +83,7 @@
 .is-editing .save {
     display: inline !important;
 }
+.has-error {
+    border: 1px solid red;
+}
 </style>

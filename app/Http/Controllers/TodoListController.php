@@ -27,6 +27,11 @@ class TodoListController extends Controller
      */
     public function store(Request $request, TodoListRepositoryInterface $listRepository)
     {
+        $request->validate([
+            'title' => 'required|max:100',
+            'todo_list_items.*.name' => 'required|max:100'
+        ]);
+
         $listAttributes = $request->only(['title']);
         $listAttributes['owner_id'] = auth()->id();
         $items = $request->get('todo_list_items');

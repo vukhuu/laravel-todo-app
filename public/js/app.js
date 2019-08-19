@@ -1840,6 +1840,7 @@ module.exports = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _models_TodoList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../models/TodoList */ "./resources/js/models/TodoList.js");
 /* harmony import */ var _models_TodoListItem__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../models/TodoListItem */ "./resources/js/models/TodoListItem.js");
+/* harmony import */ var _core_Errors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/Errors */ "./resources/js/core/Errors.js");
 //
 //
 //
@@ -1849,19 +1850,27 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       newNote: '',
-      newList: ''
+      newList: '',
+      errors: new _core_Errors__WEBPACK_IMPORTED_MODULE_2__["default"]()
     };
   },
   methods: {
     reset: function reset() {
       this.newNote = '';
       this.newList = '';
+      this.errors.clear();
     },
     createNewList: function createNewList() {
       var _this = this;
@@ -1883,6 +1892,11 @@ __webpack_require__.r(__webpack_exports__);
         var todoItem = new _models_TodoListItem__WEBPACK_IMPORTED_MODULE_1__["default"](item.id, item.name, item.isDone, item.todo_list_id);
         var todoList = new _models_TodoList__WEBPACK_IMPORTED_MODULE_0__["default"](response.data.id, response.data.title, [todoItem]);
         Event.fire('newListAdded', todoList);
+      })["catch"](function (error) {
+        var response = error.response.data;
+        console.log(response);
+
+        _this.errors.record(response.errors);
       });
     }
   }
@@ -37378,7 +37392,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _vm._v("\n    I would like to add a "),
+    _vm._v("\n    I would like to add a \n    "),
     _c("input", {
       directives: [
         {
@@ -37388,7 +37402,12 @@ var render = function() {
           expression: "newNote"
         }
       ],
-      attrs: { type: "text", placeholder: "new task" },
+      class: { "has-error": _vm.errors.has("todo_list_items.0.name") },
+      attrs: {
+        type: "text",
+        placeholder: "new task",
+        title: _vm.errors.get("todo_list_items.0.name")
+      },
       domProps: { value: _vm.newNote },
       on: {
         input: function($event) {
@@ -37409,7 +37428,12 @@ var render = function() {
           expression: "newList"
         }
       ],
-      attrs: { type: "text", placeholder: "list name" },
+      class: { "has-error": _vm.errors.has("title") },
+      attrs: {
+        type: "text",
+        placeholder: "list name",
+        title: _vm.errors.get("title")
+      },
       domProps: { value: _vm.newList },
       on: {
         input: function($event) {
@@ -50222,6 +50246,106 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_TodoListItem_vue_vue_type_template_id_65e370bc___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
+
+/***/ }),
+
+/***/ "./resources/js/core/Errors.js":
+/*!*************************************!*\
+  !*** ./resources/js/core/Errors.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * A class to represent errors sent back from Laravel backend
+ * Credit: This code is originally authored by Jeffrey Way @ Laracasts
+ */
+var Errors =
+/*#__PURE__*/
+function () {
+  /**
+   * Create a new Errors instance.
+   */
+  function Errors() {
+    _classCallCheck(this, Errors);
+
+    this.errors = {};
+  }
+  /**
+   * Determine if an errors exists for the given field.
+   *
+   * @param {string} field
+   */
+
+
+  _createClass(Errors, [{
+    key: "has",
+    value: function has(field) {
+      return this.errors.hasOwnProperty(field);
+    }
+    /**
+     * Determine if we have any errors.
+     */
+
+  }, {
+    key: "any",
+    value: function any() {
+      return Object.keys(this.errors).length > 0;
+    }
+    /**
+     * Retrieve the error message for a field.
+     *
+     * @param {string} field
+     */
+
+  }, {
+    key: "get",
+    value: function get(field) {
+      if (this.errors[field]) {
+        return this.errors[field][0];
+      }
+    }
+    /**
+     * Record the new errors.
+     *
+     * @param {object} errors
+     */
+
+  }, {
+    key: "record",
+    value: function record(errors) {
+      this.errors = errors;
+    }
+    /**
+     * Clear one or all error fields.
+     *
+     * @param {string|null} field
+     */
+
+  }, {
+    key: "clear",
+    value: function clear(field) {
+      if (field) {
+        delete this.errors[field];
+        return;
+      }
+
+      this.errors = {};
+    }
+  }]);
+
+  return Errors;
+}();
+
+/* harmony default export */ __webpack_exports__["default"] = (Errors);
 
 /***/ }),
 
