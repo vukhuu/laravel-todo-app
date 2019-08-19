@@ -50004,18 +50004,8 @@ webpackContext.id = "./resources/js sync recursive \\.vue$/";
 /*!*****************************!*\
   !*** ./resources/js/app.js ***!
   \*****************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _models_TodoList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./models/TodoList */ "./resources/js/models/TodoList.js");
-/* harmony import */ var _models_TodoListItem__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./models/TodoListItem */ "./resources/js/models/TodoListItem.js");
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -50037,7 +50027,7 @@ var files = __webpack_require__("./resources/js sync recursive \\.vue$/");
 
 files.keys().map(function (key) {
   return Vue.component(key.split('/').pop().split('.')[0], files(key)["default"]);
-}); //Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+}); // Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -50045,81 +50035,9 @@ files.keys().map(function (key) {
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-
-
-window.Event = new (
-/*#__PURE__*/
-function () {
-  function _class() {
-    _classCallCheck(this, _class);
-
-    this.vue = new Vue();
-  }
-
-  _createClass(_class, [{
-    key: "fire",
-    value: function fire(event) {
-      var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      this.vue.$emit(event, data);
-    }
-  }, {
-    key: "listen",
-    value: function listen(event, callback) {
-      this.vue.$on(event, callback);
-    }
-  }]);
-
-  return _class;
-}())();
-var app = new Vue({
-  el: '#app',
-  data: {
-    newNote: '',
-    newListName: '',
-    todoLists: []
-  },
-  methods: {
-    loadTodoLists: function loadTodoLists() {
-      var _this = this;
-
-      axios.get('/todoLists').then(function (response) {
-        var data = response.data;
-        _this.todoLists = [];
-        data.forEach(function (row) {
-          var items = [];
-          row.todo_list_items.forEach(function (item) {
-            var todoListItem = new _models_TodoListItem__WEBPACK_IMPORTED_MODULE_1__["default"](item.id, item.name, item.is_done, item.todo_list_id);
-            items.push(todoListItem);
-          });
-          var todoList = new _models_TodoList__WEBPACK_IMPORTED_MODULE_0__["default"](row.id, row.title, items);
-
-          _this.todoLists.push(todoList);
-        });
-      });
-    }
-  },
-  created: function created() {
-    var _this2 = this;
-
-    Event.listen('newListAdded', function (newItem) {
-      _this2.todoLists.unshift(newItem);
-    });
-    Event.listen('listDeleted', function (deletedList) {
-      for (var i = 0; i < _this2.todoLists.length; i++) {
-        var list = _this2.todoLists[i];
-
-        if (list['id'] == deletedList['id']) {
-          _this2.todoLists.splice(i, 1);
-
-          break;
-        }
-      }
-    });
-  },
-  mounted: function mounted() {
-    this.loadTodoLists();
-  }
-});
+/* const app = new Vue({
+    el: '#app',
+}); */
 
 /***/ }),
 

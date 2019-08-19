@@ -33,6 +33,10 @@
 </div>
 @endsection
 
+@section('script')
+    <script src="{{ asset('js/todos.js') }}" defer></script>
+@endsection
+
 <style>
 .inline-edit-text input[type=text], input.inline-edit-text {
     border: none;
