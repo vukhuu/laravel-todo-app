@@ -33,7 +33,7 @@ class TodoListRepository implements TodoListRepositoryInterface
             $this->activityLogger->log('todoListItem.create', $itemModel->id);
         }
 
-        return $list;
+        return $list->load('todoListItems');
     }
 
     /**

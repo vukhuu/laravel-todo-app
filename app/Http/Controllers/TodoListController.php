@@ -20,16 +20,6 @@ class TodoListController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -41,14 +31,8 @@ class TodoListController extends Controller
         $listAttributes['owner_id'] = auth()->id();
         $items = $request->get('todo_list_items');
         $list = $listRepository->createWithItems($listAttributes, $items);
-        
-        $listAsArray = $list->attributesToArray();
-        $listAsArray['todo_list_items'] = $list->todoListItems;
-        $response = new Response();
-        //$response->setContent($list->with('todoListItems')->first());
-        $response->setContent($listAsArray);
-        $response->setStatusCode(201);
-        return $response;
+
+        return $list;
     }
 
     /**
@@ -60,17 +44,6 @@ class TodoListController extends Controller
     public function show(TodoList $todoList)
     {
         return $todoList;
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\TodoList  $todoList
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(TodoList $todoList)
-    {
-        //
     }
 
     /**
